@@ -47,6 +47,7 @@ class Database:
         ])
         return sql, tuple(parameters.values())
 
+    # for users
     async def create_user(self, phone, username, telegram_id, full_name):
         sql = "INSERT INTO Users (phone, username, telegram_id, full_name) VALUES($1, $2, $3, $4) returning *"
         return await self.execute(sql, phone, username, telegram_id, full_name, fetchrow=True)
@@ -60,6 +61,7 @@ class Database:
         sql, parameters = self.format_args(sql, parameters=kwargs)
         return await self.execute(sql, *parameters, fetch=True)
 
+    # for categories
     async def select_all_categories(self):
         sql = "SELECT * FROM category"
         return await self.execute(sql, fetch=True)
@@ -72,3 +74,13 @@ class Database:
     # async def create_post(self, category_id, text, image, video):
     #     sql = "INSERT INTO Users (category_id, text, image, video) VALUES($1, $2, $3, $4) returning *"
     #     return await self.execute(sql, category_id, text, image, video, fetchrow=True)
+
+    # for posts
+    async def select_posts(self, **kwargs):
+        sql = "SELECT * FROM Post WHERE "
+        sql, parameters = self.format_args(sql, parameters=kwargs)
+        return await self.execute(sql, *parameters, fetch=True)
+
+    async def create_post(self, category_id, text, image, video, created_time):
+        sql = "INSERT INTO Post (category_id, text, image, video) VALUES($1, $2, $3, $4) returning *"
+        return await self.execute(sql, category_id, text, image, video, fetchrow=True)

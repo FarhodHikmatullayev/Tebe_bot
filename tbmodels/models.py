@@ -17,7 +17,7 @@ class Category(models.Model):
         ('employee', 'employee'),
         ('employer', 'employer'),
     ]
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=200)
     for_who = models.CharField(max_length=20, choices=FOR_WHO_CHOICES)
 
     class Meta:
@@ -29,8 +29,7 @@ class Posts(models.Model):
     text = models.TextField(null=True)
     image = models.TextField(null=True)
     video = models.TextField(null=True)
-    created_time = models.DateTimeField(auto_now_add=True)
-    updated_time = models.DateTimeField(auto_now=True)
+    created_time = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
         db_table = 'post'
