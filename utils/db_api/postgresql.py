@@ -81,6 +81,6 @@ class Database:
         sql, parameters = self.format_args(sql, parameters=kwargs)
         return await self.execute(sql, *parameters, fetch=True)
 
-    async def create_post(self, category_id, text, image, video, created_time):
-        sql = "INSERT INTO Post (category_id, text, image, video) VALUES($1, $2, $3, $4) returning *"
-        return await self.execute(sql, category_id, text, image, video, fetchrow=True)
+    async def create_post(self, category_id, text, image, video, user_id, created_time):
+        sql = "INSERT INTO Post (category_id, text, image, video, user_id) VALUES($1, $2, $3, $4, $5) returning *"
+        return await self.execute(sql, category_id, text, image, video, user_id, fetchrow=True)

@@ -15,6 +15,12 @@ from loader import dp
 @dp.message_handler(content_types='contact')
 async def get_contact(message: Message):
     contact = message.contact
+    categories = await db.select_all_categories()
+    txt = ""
+    tr = 0
+    for category in categories:
+        tr += 1
+        txt += f"{tr}. {category['name']}\n"
     try:
         user = await db.create_user(phone=contact.phone_number, telegram_id=message.from_user.id,
                                     username=message.from_user.username, full_name=message.from_user.full_name)
@@ -27,8 +33,9 @@ async def get_contact(message: Message):
     except asyncpg.exceptions.UniqueViolationError:
         text = "Siz allaqachon ro'yxatdan o'tgan ekansiz\n" \
                "Endi quyidagi bo'limlardan birini tanlang"
+        await message.answer(text=text)
         markup = await categories_keyboard(user_id=message.from_user.id)
-        await message.answer(text=text, reply_markup=markup)
+        await message.answer(text=txt, reply_markup=markup)
 
 
 @dp.message_handler(CommandStart(), state='*')

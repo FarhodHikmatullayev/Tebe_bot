@@ -51,6 +51,13 @@ async def create_or_not_or_back(category_id, for_who):
             ],
             [
                 InlineKeyboardButton(
+                    text="Mening Murojaat/Takliflarim",
+                    callback_data=add_or_select_callback_data.new(category_id=category_id, for_who=for_who,
+                                                                  create_or_read='my_posts')
+                )
+            ],
+            [
+                InlineKeyboardButton(
                     text='Orqaga',
                     callback_data=add_or_select_callback_data.new(category_id=category_id, for_who=for_who,
                                                                   create_or_read='back')

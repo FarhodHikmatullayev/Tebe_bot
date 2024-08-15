@@ -11,6 +11,9 @@ class Users(models.Model):
     class Meta:
         db_table = 'users'
 
+    def __str__(self):
+        return self.full_name
+
 
 class Category(models.Model):
     FOR_WHO_CHOICES = [
@@ -23,13 +26,20 @@ class Category(models.Model):
     class Meta:
         db_table = 'category'
 
+    def __str__(self):
+        return self.name
+
 
 class Posts(models.Model):
+    user = models.ForeignKey('Users', on_delete=models.CASCADE, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    text = models.TextField(null=True)
-    image = models.TextField(null=True)
-    video = models.TextField(null=True)
-    created_time = models.DateTimeField(auto_now_add=True, null=True)
+    text = models.TextField(null=True, blank=True)
+    image = models.CharField(max_length=500, null=True, blank=True)
+    video = models.CharField(max_length=500, null=True, blank=True)
+    created_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.category.name} uchun qo'yilgan post"
 
     class Meta:
         db_table = 'post'
