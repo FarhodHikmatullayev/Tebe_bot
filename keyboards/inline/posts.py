@@ -20,9 +20,14 @@ async def add_or_see_posts_keyboard(category_id, for_who):
                                                                   create_or_read='create')
                 ),
                 InlineKeyboardButton(
-                    text="Postlarni ko'rish",
+                    text="Barcha postlar",
                     callback_data=add_or_select_callback_data.new(category_id=category_id, for_who=for_who,
                                                                   create_or_read='read')
+                ),
+                InlineKeyboardButton(
+                    text="Mening postlarim",
+                    callback_data=add_or_select_callback_data.new(category_id=category_id, for_who=for_who,
+                                                                  create_or_read='my_posts')
                 )
             ],
             [

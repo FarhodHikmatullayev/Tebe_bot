@@ -7,3 +7,11 @@ class Post(StatesGroup):
     text = State()
     image = State()
     video = State()
+
+
+class PostEditDelete(StatesGroup):
+    id = State()
+    text = State()
+    image = State()
+    video = State()
+    edit = State()

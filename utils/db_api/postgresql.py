@@ -84,3 +84,7 @@ class Database:
     async def create_post(self, category_id, text, image, video, user_id, created_time):
         sql = "INSERT INTO Post (category_id, text, image, video, user_id) VALUES($1, $2, $3, $4, $5) returning *"
         return await self.execute(sql, category_id, text, image, video, user_id, fetchrow=True)
+
+    async def update_post(self, id, text, image, video):
+        sql = "UPDATE Post SET text=$2, image=$3, video=$4 WHERE id=$1"
+        return await self.execute(sql, id, text, image, video, execute=True)

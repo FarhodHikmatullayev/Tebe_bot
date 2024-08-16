@@ -11,8 +11,6 @@ from aiogram.types import CallbackQuery, Message
 async def open_categories(call: CallbackQuery, callback_data: dict):
     for_who = callback_data.get('for_who')
     category_id = int(callback_data.get('id'))
-    print('category_id', category_id)
-    print('callback_data', callback_data)
 
     if for_who == 'employee':
         text = "Xodimlarning murojaatlari ro'yxati"
@@ -23,9 +21,8 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
         for post in posts:
             text = ""
 
-            user_telegram_id = post['user_id']
-            users = await db.select_users(telegram_id=user_telegram_id)
-            id = users[0]['id']
+            user_id = post['user_id']
+            users = await db.select_users(id=user_id)
             full_name = users[0]['full_name']
             username = users[0]['username']
             phone = users[0]['phone']
@@ -46,7 +43,7 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
             if video_url:
                 text += f"{video_url}"
 
-            await call.message.answer(text=text)
+            await call.message.answer(text=text, reply_markup=back_menu_keyboard)
 
     elif for_who == "employer":
         markup = await add_or_see_posts_keyboard(category_id=category_id, for_who=for_who)
@@ -59,8 +56,6 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
 async def open_categories(call: CallbackQuery, callback_data: dict):
     for_who = callback_data.get('for_who')
     category_id = int(callback_data.get('id'))
-    print('category_id', category_id)
-    print('callback_data', callback_data)
 
     if for_who == 'employer':
         text = "Postlar ro'yxati"
@@ -71,9 +66,8 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
         for post in posts:
             text = ""
 
-            user_telegram_id = post['user_id']
-            users = await db.select_users(telegram_id=user_telegram_id)
-            id = users[0]['id']
+            user_id = post['user_id']
+            users = await db.select_users(id=user_id)
             full_name = users[0]['full_name']
             username = users[0]['username']
             phone = users[0]['phone']
@@ -92,7 +86,7 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
             if video_url:
                 text += f"Post videosi: {video_url}"
 
-            await call.message.answer(text=text)
+            await call.message.answer(text=text, reply_markup=back_menu_keyboard)
         if tr == 0:
             text = "Hali post mavjud emas"
             await call.message.answer(text=text, reply_markup=back_menu_keyboard)

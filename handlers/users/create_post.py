@@ -4,6 +4,7 @@ from data.config import ADMINS
 from keyboards.default.menu import back_menu_keyboard
 from keyboards.inline.categories import categories_callback_data, categories_keyboard
 from keyboards.inline.confirmation import confirm_keyboard
+from keyboards.inline.edit_posts import text_or_video_or_image
 from keyboards.inline.posts import add_or_see_posts_keyboard, add_or_select_callback_data, video_image_or_nothing, \
     vide_or_image_or_no
 from loader import dp, db, bot
@@ -19,7 +20,6 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
     create_or_read = callback_data.get("create_or_read")
     category_id = int(callback_data.get("category_id"))
     for_who = callback_data.get("for_who")
-    print('callback_data', callback_data)
     if create_or_read == 'back':
 
         categories = await db.select_all_categories()
@@ -79,6 +79,37 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
         await call.message.edit_text(text=text)
         await Post.text.set()
 
+    elif create_or_read == "my_posts":
+        user = await db.select_users(telegram_id=call.from_user.id)
+        my_posts = await db.select_posts(user_id=user[0]['id'])
+        tr = 0
+        for post in my_posts:
+            text = ""
+
+            category_id = post['category_id']
+            category = await db.select_categories(id=category_id)
+            category_name = category[0]['name']
+            message = post['text']
+            photo_url = post['image']
+            video_url = post['video']
+            tr += 1
+            text += f"Kategoriya: {category_name}\n"
+            if message:
+                text += f"Text: {message}\n"
+            if photo_url:
+                text += f"Rasm: {photo_url}\n"
+            if video_url:
+                text += f"Video: {video_url}\n"
+            text += f"ID: {post['id']}"
+            await call.message.answer(text=text)
+        if tr > 0:
+            txt = "Bulardan birortasini o'chirishni yoki taxrirlashni xohlaysizmi?"
+            await call.message.answer(text=txt, reply_markup=confirm_keyboard)
+        else:
+            txt = "Siz hali Post joylamadingiz"
+            await call.message.answer(text=txt, reply_markup=back_menu_keyboard)
+            await bot.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
+
 
 # for employee
 @dp.callback_query_handler(add_or_select_callback_data.filter())
@@ -86,10 +117,18 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
     create_or_read = callback_data.get("create_or_read")
     category_id = int(callback_data.get("category_id"))
     for_who = callback_data.get("for_who")
-    print('callback_data', callback_data)
     if create_or_read == 'back':
+
+        categories = await db.select_all_categories()
+        txt = ""
+        tr = 0
+        for category in categories:
+            tr += 1
+            txt += f"{tr}. {category['name']}\n"
+
         markup = await categories_keyboard(user_id=call.from_user.id)
-        await call.message.edit_text(text="Endi quyidagi bo'limlardan birini tanlang", reply_markup=markup)
+        await call.message.edit_text(text="Endi quyidagi bo'limlardan birini tanlang")
+        await call.message.answer(text=txt, reply_markup=markup)
     elif create_or_read == 'yes':
         await state.update_data(
             {
@@ -102,12 +141,13 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
         await Post.text.set()
     elif create_or_read == 'my_posts':
         user = await db.select_users(telegram_id=call.from_user.id)
-        print('user_id', call.from_user.id)
-        print('user', user)
+
         my_posts = await db.select_posts(user_id=user[0]['id'])
         tr = 0
-        text = ""
+
         for post in my_posts:
+            text = ""
+
             category_id = post['category_id']
             category = await db.select_categories(id=category_id)
             category_name = category[0]['name']
@@ -128,8 +168,9 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
             txt = "Bulardan birortasini o'chirishni yoki taxrirlashni xohlaysizmi?"
             await call.message.answer(text=txt, reply_markup=confirm_keyboard)
         else:
-            txt = "Sizning hali Murojaat/Taklif jo'natmadingiz"
+            txt = "Siz hali Murojaat/Taklif jo'natmadingiz"
             await call.message.answer(text=txt, reply_markup=back_menu_keyboard)
+            await bot.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
 
 
 # for employer
@@ -161,7 +202,7 @@ async def image_or_video_button(call: CallbackQuery, callback_data: dict, state:
         await Post.video.set()
 
     elif image_or_video == 'nothing':
-        if call.message.from_user.id in ADMINS:
+        if str(call.message.from_user.id) in ADMINS:
             text = f"Sizning Postingiz:\n" \
                    f"{message}"
         else:
@@ -196,7 +237,6 @@ async def create_post_only_text(call: CallbackQuery, state: FSMContext):
     image = data.get('image', None)
     video = data.get('video', None)
     user_telegram_id = call.from_user.id
-    print("user_telegram_id", user_telegram_id)
     users = await db.select_users(telegram_id=user_telegram_id)
     post = await db.create_post(
         user_id=users[0]['id'],
@@ -237,7 +277,7 @@ async def save_image_for_post(message: Message, state: FSMContext):
 
     await message.answer(text=text)
 
-    if message.from_user.id in ADMINS:
+    if str(message.from_user.id) in ADMINS:
         text = "Sizning Postingiz yuqoridagidek bo'ldi,\n" \
                "Uni saqlashni xohlaysizmi?"
     else:
@@ -249,7 +289,6 @@ async def save_image_for_post(message: Message, state: FSMContext):
 
 @dp.message_handler(content_types=ContentType.ANY, state=Post.image)
 async def save_image_for_post(message: Message, state: FSMContext):
-    print('rasm')
     text = "Iltimos rasm jo'nating"
     await message.answer(text=text, reply_markup=back_menu_keyboard)
 
@@ -257,7 +296,6 @@ async def save_image_for_post(message: Message, state: FSMContext):
 @dp.message_handler(content_types=[ContentType.VIDEO], state=Post.video)
 async def save_video_for_post(message: Message, state: FSMContext):
     video = message.video
-    print('video', video)
     link = await video_link(video=video)
     await state.update_data(
         {
@@ -271,7 +309,7 @@ async def save_video_for_post(message: Message, state: FSMContext):
 
     await message.answer(text=text)
 
-    if message.from_user.id in ADMINS:
+    if str(message.from_user.id) in ADMINS:
         text = "Sizning Postingiz yuqoridagidek bo'ldi,\n" \
                "Uni saqlashni xohlaysizmi?"
     else:
@@ -283,6 +321,5 @@ async def save_video_for_post(message: Message, state: FSMContext):
 
 @dp.message_handler(content_types=ContentType.ANY, state=Post.video)
 async def save_video_for_post(message: Message, state: FSMContext):
-    print('video')
     text = "Iltimos video jo'nating"
     await message.answer(text=text, reply_markup=back_menu_keyboard)
