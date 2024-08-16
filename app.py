@@ -22,7 +22,7 @@ async def on_startup(dispatcher):
     # await on_startup_notify(dispatcher)
 
 
-WEBHOOK_HOST = 'https://helperclient-bot.onrender.com'
+WEBHOOK_HOST = 'https://tbandtxbot.onrender.com'
 WEBHOOK_PATH = f'/webhook/{BOT_TOKEN}'
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
