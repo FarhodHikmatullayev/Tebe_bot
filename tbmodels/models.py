@@ -10,6 +10,8 @@ class Users(models.Model):
 
     class Meta:
         db_table = 'users'
+        verbose_name = "User"
+        verbose_name_plural = "Foydalanuvchilar"
 
     def __str__(self):
         return self.full_name
@@ -25,6 +27,8 @@ class Category(models.Model):
 
     class Meta:
         db_table = 'category'
+        verbose_name = "Category"
+        verbose_name_plural = "Post Kategoriyalari"
 
     def __str__(self):
         return self.name
@@ -38,8 +42,10 @@ class Posts(models.Model):
     video = models.CharField(max_length=500, null=True, blank=True)
     created_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.category.name} uchun qo'yilgan post"
-
     class Meta:
         db_table = 'post'
+        verbose_name = "Post"
+        verbose_name_plural = "Postlar"
+
+    def __str__(self):
+        return f"{self.category.name} uchun qo'yilgan post"
