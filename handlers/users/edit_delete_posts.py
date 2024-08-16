@@ -4,7 +4,8 @@ from aiogram.types import CallbackQuery, Message, ContentType
 from data.config import ADMINS
 from keyboards.default.menu import back_menu_keyboard
 from keyboards.inline.confirmation import confirm_keyboard
-from keyboards.inline.edit_posts import get_choose_button, text_or_video_or_image
+from keyboards.inline.edit_posts import get_choose_button, text_or_video_or_image, edit_or_delete_inline_keyboard, \
+    edit_or_delete_callback_data
 from loader import dp, db, bot
 from states.posts_state import PostEditDelete
 from utils.photograph import photo_link, video_link
@@ -51,6 +52,13 @@ async def get_post_id(message: Message, state: FSMContext):
         if posts:
             post = posts[0]
 
+            if str(message.from_user.id) in ADMINS:
+                text = "Bu postni taxrirlaysizmi yoki o'chirasizmi?"
+            else:
+                text = "Bu Murojaat/Taklifni taxrirlaysizmi yoki o'chirasizmi?"
+            markup = await edit_or_delete_inline_keyboard(post_id=post_id)
+            await message.answer(text=text, reply_markup=markup)
+
             await state.update_data(
                 {
                     'post_id': post_id,
@@ -87,6 +95,11 @@ async def get_post_id(message: Message, state: FSMContext):
                "Iltimos tog'ri ID raqam kiriting"
         await PostEditDelete.id.set()
         await message.answer(text=text, reply_markup=back_menu_keyboard)
+
+
+@dp.callback_query_handler(edit_or_delete_callback_data.filter(), state=PostEditDelete.id)
+async def edit_or_delete(call: CallbackQuery, state: FSMContext, callback_data: dict):
+    pass
 
 
 @dp.callback_query_handler(text_or_video_or_image.filter(), state=PostEditDelete.id)
