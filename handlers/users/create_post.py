@@ -44,7 +44,9 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
             await bot.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
         tr = 0
         for post in posts:
-            text = ""
+            tr += 1
+
+            text = f"{tr}.\n"
 
             user_id = post['user_id']
             users = await db.select_users(id=user_id)
@@ -59,7 +61,6 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
             message = post['text']
             photo_url = post['image']
             video_url = post['video']
-            tr += 1
             if message:
                 text += f"Post matni: {message}\n"
             if photo_url:
@@ -84,7 +85,9 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
         my_posts = await db.select_posts(user_id=user[0]['id'])
         tr = 0
         for post in my_posts:
-            text = ""
+            tr += 1
+
+            text = f"{tr}.\n"
 
             category_id = post['category_id']
             category = await db.select_categories(id=category_id)
@@ -92,7 +95,6 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
             message = post['text']
             photo_url = post['image']
             video_url = post['video']
-            tr += 1
             text += f"Kategoriya: {category_name}\n"
             if message:
                 text += f"Text: {message}\n"
@@ -146,7 +148,9 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
         tr = 0
 
         for post in my_posts:
-            text = ""
+            tr += 1
+
+            text = f"{tr}.\n"
 
             category_id = post['category_id']
             category = await db.select_categories(id=category_id)
@@ -154,7 +158,6 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
             message = post['text']
             photo_url = post['image']
             video_url = post['video']
-            tr += 1
             text += f"Kategoriya: {category_name}\n"
             if message:
                 text += f"Text: {message}\n"
@@ -164,6 +167,7 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
                 text += f"Video: {video_url}"
             text += f"ID: {post['id']}"
             await call.message.answer(text=text)
+            await bot.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
         if tr > 0:
             txt = "Bulardan birortasini o'chirishni yoki taxrirlashni xohlaysizmi?"
             await call.message.answer(text=txt, reply_markup=confirm_keyboard)

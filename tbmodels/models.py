@@ -49,3 +49,6 @@ class Posts(models.Model):
 
     def __str__(self):
         return f"{self.category.name} uchun qo'yilgan post"
+
+
+

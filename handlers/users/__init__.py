@@ -1,4 +1,7 @@
 from . import help
+from . import get_photo_url
+from . import get_video_url
+from . import contest_handler
 from . import back_menu
 from . import start
 from . import edit_delete_posts

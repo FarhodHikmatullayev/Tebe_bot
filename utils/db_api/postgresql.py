@@ -1,3 +1,4 @@
+import datetime
 from typing import Union
 
 import asyncpg
@@ -88,3 +89,32 @@ class Database:
     async def update_post(self, id, text, image, video):
         sql = "UPDATE Post SET text=$2, image=$3, video=$4 WHERE id=$1"
         return await self.execute(sql, id, text, image, video, execute=True)
+
+    async def delete_post(self, id):
+        sql = "DELETE FROM Post WHERE id = $1"
+        result = None  # Define and assign a default value to result
+        async with self.pool.acquire() as connection:
+            connection: Connection
+            async with connection.transaction():
+                result = await connection.execute(sql, id)
+        return result
+
+    # for tests
+
+    async def select_tests(self, **kwargs):
+        sql = "SELECT * FROM Test WHERE "
+        sql, parameters = self.format_args(sql, parameters=kwargs)
+        return await self.execute(sql, *parameters, fetch=True)
+
+    # for results
+    async def create_result(self, counts_true, counts_false, time_duration, is_successful, user_id, test_id,
+                            created_at=datetime.datetime.now()):
+        sql = "INSERT INTO Result (counts_true, counts_false, time_duration, is_successful, user_id, test_id, created_at) VALUES($1, $2, $3, $4, $5, $6, $7) returning *"
+        return await self.execute(sql, counts_true, counts_false, time_duration, is_successful, user_id, test_id,
+                                  created_at,
+                                  fetchrow=True)
+
+    async def select_result(self, **kwargs):
+        sql = "SELECT * FROM Result WHERE "
+        sql, parameters = self.format_args(sql, parameters=kwargs)
+        return await self.execute(sql, *parameters, fetch=True)

@@ -13,10 +13,7 @@ from utils.photograph import photo_link, video_link
 
 @dp.callback_query_handler(text='ok')
 async def confirm_edit_delete(call: CallbackQuery):
-    user_telegram_id = call.from_user.id
-    users = await db.select_users(telegram_id=user_telegram_id)
-    user_id = users[0]['id']
-    if user_id in ADMINS:
+    if str(call.from_user.id) in ADMINS:
         text = "O'zgartirmoqchi yoki o'chirmoqchi bo'lgan Postingizning ID raqamini kiriting"
     else:
         text = "O'zgartirmoqchi yoki o'chirmoqchi bo'lgan Murojaat/Taklifingizning ID raqamini kiriting"
@@ -68,22 +65,7 @@ async def get_post_id(message: Message, state: FSMContext):
                 }
             )
 
-            post = posts[0]
-            post_image = post['image']
-            post_video = post['video']
 
-            if post_image:
-                markup = await get_choose_button(post_id=post_id, video_image='image')
-                text = "Rasmni o'zgartirasizmi yoki text?"
-                await message.answer(text=text, reply_markup=markup)
-            elif post_video:
-                markup = await get_choose_button(post_id=post_id, video_image='video')
-                text = "Videoni o'zgartirasizmi yoki text?"
-                await message.answer(text=text, reply_markup=markup)
-            else:
-                text = "Yangi text kiriting"
-                await message.answer(text=text, reply_markup=back_menu_keyboard)
-                await PostEditDelete.text.set()
         else:
             text = "Bunday ID raqamli post mavjud emas\n" \
                    "Iltimos tog'ri ID raqam kiriting"
@@ -99,7 +81,46 @@ async def get_post_id(message: Message, state: FSMContext):
 
 @dp.callback_query_handler(edit_or_delete_callback_data.filter(), state=PostEditDelete.id)
 async def edit_or_delete(call: CallbackQuery, state: FSMContext, callback_data: dict):
-    pass
+    edit_or_delete = callback_data.get('edit_or_delete')
+    post_id = int(callback_data.get('post_id'))
+
+    if edit_or_delete == 'delete':
+
+        await db.delete_post(id=post_id)
+
+        if str(call.from_user.id) in ADMINS:
+            text = "Sizning Postingiz muvaffaqiyatli o'chirildi"
+
+        else:
+            text = "Sizning Taklif/Murojaatingiz muvaffaqiyatli o'chirildi"
+        await call.message.answer(text=text, reply_markup=back_menu_keyboard)
+        await bot.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
+
+        await state.finish()
+
+    elif edit_or_delete == 'edit':
+        user_telegram_id = call.from_user.id
+        users = await db.select_users(telegram_id=user_telegram_id)
+        user_id = users[0]['id']
+        posts = await db.select_posts(id=post_id, user_id=user_id)
+
+        post = posts[0]
+        post_image = post['image']
+        post_video = post['video']
+
+        if post_image:
+            markup = await get_choose_button(post_id=post_id, video_image='image')
+            text = "Rasmni o'zgartirasizmi yoki text?"
+            await call.message.edit_text(text=text, reply_markup=markup)
+        elif post_video:
+            markup = await get_choose_button(post_id=post_id, video_image='video')
+            text = "Videoni o'zgartirasizmi yoki text?"
+            await call.message.edit_text(text=text, reply_markup=markup)
+        else:
+            text = "Yangi text kiriting"
+            await call.message.answer(text=text, reply_markup=back_menu_keyboard)
+            await bot.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
+            await PostEditDelete.text.set()
 
 
 @dp.callback_query_handler(text_or_video_or_image.filter(), state=PostEditDelete.id)

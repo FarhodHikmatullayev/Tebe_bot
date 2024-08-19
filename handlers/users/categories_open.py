@@ -19,7 +19,8 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
         tr = 0
 
         for post in posts:
-            text = ""
+            tr += 1
+            text = f"{tr}.\n"
 
             user_id = post['user_id']
             users = await db.select_users(id=user_id)
@@ -35,7 +36,6 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
             message = post['text']
             photo_url = post['image']
             video_url = post['video']
-            tr += 1
             if message:
                 text += f"{message}\n"
             if photo_url:
@@ -64,7 +64,9 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
         tr = 0
 
         for post in posts:
-            text = ""
+            tr += 1
+
+            text = f"{tr}.\n"
 
             user_id = post['user_id']
             users = await db.select_users(id=user_id)
@@ -74,7 +76,6 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
             message = post['text']
             photo_url = post['image']
             video_url = post['video']
-            tr += 1
             text += "Post egasi ma'lumotlari: \n"
             text += f"   username: {username} \n"
             text += f"   full_name: {full_name} \n"
