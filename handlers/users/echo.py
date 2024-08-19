@@ -16,5 +16,7 @@ async def bot_echo(message: types.Message):
            "Quyidagi bo'limlardan birini tanlang"
     await message.answer(text)
     markup = await categories_keyboard(user_id=message.from_user.id)
-
-    await message.answer(text=txt, reply_markup=markup)
+    if not txt:
+        await message.answer(text="Hali ma'lumotlar ba'zasida hechqanday ma'lumotlar mavjud emas!")
+    else:
+        await message.answer(text=txt, reply_markup=markup)
