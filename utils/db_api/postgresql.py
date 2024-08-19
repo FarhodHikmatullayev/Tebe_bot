@@ -6,6 +6,7 @@ from asyncpg import Connection
 from asyncpg.pool import Pool
 
 from data import config
+from data.config import DEVELOPMENT_MODE
 
 
 class Database:
@@ -14,12 +15,17 @@ class Database:
         self.pool: Union[Pool, None] = None
 
     async def create(self):
-        self.pool = await asyncpg.create_pool(
-            user=config.DB_USER,
-            password=config.DB_PASS,
-            host=config.DB_HOST,
-            database=config.DB_NAME
-        )
+        if DEVELOPMENT_MODE:
+            self.pool = await asyncpg.create_pool(
+                user=config.DB_USER,
+                password=config.DB_PASS,
+                host=config.DB_HOST,
+                database=config.DB_NAME
+            )
+        else:
+            self.pool = await asyncpg.create_pool(
+                dsn=config.DATABASE_URL
+            )
 
     async def execute(self, command, *args,
                       fetch: bool = False,

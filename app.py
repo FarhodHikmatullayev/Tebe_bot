@@ -13,7 +13,7 @@ if not DEVELOPMENT_MODE:
 
 async def on_startup(dispatcher):
     await db.create()
-    await bot.set_webhook(WEBHOOK_URL)
+    # await bot.set_webhook(WEBHOOK_URL)
 
     # Birlamchi komandalar (/star va /help)
     await set_default_commands(dispatcher)
@@ -22,9 +22,9 @@ async def on_startup(dispatcher):
     # await on_startup_notify(dispatcher)
 
 
-WEBHOOK_HOST = 'https://tbandtxbot.onrender.com'
-WEBHOOK_PATH = f'/webhook/{BOT_TOKEN}'
-WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+# WEBHOOK_HOST = 'https://tbandtxbot.onrender.com'
+# WEBHOOK_PATH = f'/webhook/{BOT_TOKEN}'
+# WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 if __name__ == '__main__':
     executor.start_polling(dp, on_startup=on_startup)
