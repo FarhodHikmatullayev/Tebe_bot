@@ -16,7 +16,7 @@ class Tests(models.Model):
     picture = models.CharField(max_length=500)
     time_limit = models.DurationField()
     red_line = models.IntegerField()
-    answers = models.CharField()
+    answers = models.CharField(max_length=221)
     created_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
 
     def __str__(self):
