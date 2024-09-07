@@ -14,7 +14,7 @@ class Tests(models.Model):
     for_who = models.CharField(max_length=20, choices=FOR_WHO_CHOICES)
     count_questions = models.IntegerField()
     picture = models.CharField(max_length=500)
-    time_limit = models.DurationField()
+    time_limit = models.DurationField(null=True)
     red_line = models.IntegerField()
     answers = models.CharField(max_length=221)
     created_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
