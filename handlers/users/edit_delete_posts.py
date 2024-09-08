@@ -188,26 +188,28 @@ async def edit_text(message: Message, state: FSMContext):
 
         txt = f"Text: {text}\n"
         if image:
-            txt += f"Rasm: {image}\n"
+            # txt += f"Rasm: {image}\n"
+            await message.answer_photo(photo=image, caption=txt)
         elif video:
-            txt += f"Video: {video}\n"
+            # txt += f"Video: {video}\n"
+            await message.answer_video(video=video, caption=txt)
 
         if str(message.from_user.id) in ADMINS:
             text = "Sizning postingiz o'zgartirishdan so'ng tepadagidek bo'ladi\n"
         else:
             text = "Sizning Murojaat/Taklifingiz o'zgartishdan so'ng tepadagidek bo'ladi\n"
-        await message.answer(text=txt)
+
         await message.answer(text=text + "O'zarishlar saqlansinmi?", reply_markup=confirm_keyboard)
         await state.set_state(PostEditDelete.edit.state)
 
 
 @dp.message_handler(state=PostEditDelete.image, content_types=ContentType.PHOTO)
 async def edit_image(message: Message, state: FSMContext):
-    photo = message.photo[-1]
-    link = await photo_link(photo)
+    photo = message.photo[-1].file_id
+    # link = await photo_link(photo)
     await state.update_data(
         {
-            'image': link
+            'image': photo
         }
     )
 
@@ -226,14 +228,16 @@ async def edit_image(message: Message, state: FSMContext):
 
     txt = f"Text: {text}\n"
     if image:
-        txt += f"Rasm: {image}\n"
+        # txt += f"Rasm: {image}\n"
+        await message.answer_photo(photo=image, caption=txt)
     elif video:
-        txt += f"Video: {video}\n"
+        # txt += f"Video: {video}\n"
+        await message.answer_video(video=video, caption=txt)
     if str(message.from_user.id) in ADMINS:
         text = "Sizning postingiz o'zgartirishdan so'ng tepadagidek bo'ladi\n"
     else:
         text = "Sizning Murojaat/Taklifingiz o'zgartishdan so'ng tepadagidek bo'ladi\n"
-    await message.answer(text=txt)
+    # await message.answer(text=txt)
     await message.answer(text=text + "O'zarishlar saqlansinmi?", reply_markup=confirm_keyboard)
     await state.set_state(PostEditDelete.edit.state)
 
@@ -247,11 +251,11 @@ async def edit_image(message: Message, state: FSMContext):
 
 @dp.message_handler(state=PostEditDelete.video, content_types=ContentType.VIDEO)
 async def edit_video(message: Message, state: FSMContext):
-    video = message.video
-    link = await video_link(video=video)
+    video = message.video.file_id
+    # link = await video_link(video=video)
     await state.update_data(
         {
-            'video': link
+            'video': video
         }
     )
 
@@ -270,14 +274,16 @@ async def edit_video(message: Message, state: FSMContext):
 
     txt = f"Text: {text}\n"
     if image:
-        txt += f"Rasm: {image}\n"
+        # txt += f"Rasm: {image}\n"
+        await message.answer_photo(photo=image, caption=txt)
     elif video:
-        txt += f"Video: {video}\n"
+        # txt += f"Video: {video}\n"
+        await message.answer_video(video=video, caption=txt)
     if str(message.from_user.id) in ADMINS:
         text = "Sizning postingiz o'zgartirishdan so'ng tepadagidek bo'ladi\n"
     else:
         text = "Sizning Murojaat/Taklifingiz o'zgartishdan so'ng tepadagidek bo'ladi\n"
-    await message.answer(text=txt)
+    # await message.answer(text=txt)
     await message.answer(text=text + "O'zarishlar saqlansinmi?", reply_markup=confirm_keyboard)
     await state.set_state(PostEditDelete.edit.state)
 

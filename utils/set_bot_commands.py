@@ -7,7 +7,7 @@ async def set_default_commands(dp):
             types.BotCommand("start", "Botni ishga tushurish"),
             types.BotCommand("help", "Yordam"),
             types.BotCommand("start_test", "Testni boshlash"),
-            types.BotCommand("get_photo_url", "Rasmning url manzilini olish, Faqat admin uchun"),
-            types.BotCommand("get_video_url", "Videoning url manzilini olish, Faqat admin uchun"),
+            types.BotCommand("get_photo_id", "Rasmning ID sini olish, Faqat admin uchun"),
+            types.BotCommand("get_video_id", "Videoning ID sini olish, Faqat admin uchun"),
         ]
     )

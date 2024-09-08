@@ -59,16 +59,16 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
             text += f"   full_name: {full_name} \n"
             text += f"   telefon raqam: {phone} \n"
             message = post['text']
-            photo_url = post['image']
-            video_url = post['video']
+            photo_id = post['image']
+            video_id = post['video']
             if message:
                 text += f"Post matni: {message}\n"
-            if photo_url:
-                text += f"Post rasmi: {photo_url}\n"
-            if video_url:
-                text += f"Post videosi: {video_url}"
+            if photo_id:
+                await call.message.answer_photo(photo=photo_id, caption=text)
+            if video_id:
+                await call.message.answer_video(video=video_id, caption=text)
 
-            await call.message.answer(text=text)
+            # await call.message.answer(text=text)
     elif create_or_read == 'create':
         await state.update_data(
             {
@@ -93,17 +93,18 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
             category = await db.select_categories(id=category_id)
             category_name = category[0]['name']
             message = post['text']
-            photo_url = post['image']
-            video_url = post['video']
+            photo_id = post['image']
+            video_id = post['video']
             text += f"Kategoriya: {category_name}\n"
+            text += f"ID: {post['id']}\n"
             if message:
                 text += f"Text: {message}\n"
-            if photo_url:
-                text += f"Rasm: {photo_url}\n"
-            if video_url:
-                text += f"Video: {video_url}\n"
-            text += f"ID: {post['id']}"
-            await call.message.answer(text=text)
+            if photo_id:
+                await call.message.answer_photo(photo=photo_id, caption=text)
+            if video_id:
+                await call.message.answer_video(video=video_id, caption=text)
+
+            # await call.message.answer(text=text)
         if tr > 0:
             txt = "Bulardan birortasini o'chirishni yoki taxrirlashni xohlaysizmi?"
             await call.message.answer(text=txt, reply_markup=confirm_keyboard)
@@ -156,17 +157,18 @@ async def read_or_add_or_back_to_categories(call: CallbackQuery, callback_data: 
             category = await db.select_categories(id=category_id)
             category_name = category[0]['name']
             message = post['text']
-            photo_url = post['image']
-            video_url = post['video']
+            photo_id = post['image']
+            video_id = post['video']
             text += f"Kategoriya: {category_name}\n"
+            text += f"ID: {post['id']}\n"
             if message:
                 text += f"Text: {message}\n"
-            if photo_url:
-                text += f"Rasm: {photo_url}\n"
-            if video_url:
-                text += f"Video: {video_url}"
-            text += f"ID: {post['id']}"
-            await call.message.answer(text=text)
+            if photo_id:
+                await call.message.answer_photo(photo=photo_id, caption=text)
+            if video_id:
+                await call.message.answer_video(video=video_id, caption=text)
+
+            # await call.message.answer(text=text)
             await bot.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
         if tr > 0:
             txt = "Bulardan birortasini o'chirishni yoki taxrirlashni xohlaysizmi?"
@@ -238,16 +240,16 @@ async def create_post_only_text(call: CallbackQuery, state: FSMContext):
     message = data.get('message')
     category_id = data.get('category_id')
     for_who = data.get('for_who')
-    image = data.get('image', None)
-    video = data.get('video', None)
+    image_id = data.get('image', None)
+    video_id = data.get('video', None)
     user_telegram_id = call.from_user.id
     users = await db.select_users(telegram_id=user_telegram_id)
     post = await db.create_post(
         user_id=users[0]['id'],
         category_id=category_id,
         text=message,
-        image=image,
-        video=video,
+        image=image_id,
+        video=video_id,
         created_time=datetime.datetime.now() + datetime.timedelta(hours=5)
     )
 
@@ -267,19 +269,18 @@ async def cancel_post(call: CallbackQuery, state: FSMContext):
 
 @dp.message_handler(content_types=[ContentType.PHOTO], state=Post.image)
 async def save_image_for_post(message: Message, state: FSMContext):
-    photo = message.photo[-1]
-    link = await photo_link(photo)
+    photo = message.photo[-1].file_id
+
     await state.update_data(
         {
-            'image': link
+            'image': photo
         }
     )
     data = await state.get_data()
     msg = data.get('message')
-    text = f"{link}\n" \
-           f"{msg}"
-
-    await message.answer(text=text)
+    text = msg
+    await message.answer_photo(photo=photo, caption=text)
+    # await message.answer(text=text)
 
     if str(message.from_user.id) in ADMINS:
         text = "Sizning Postingiz yuqoridagidek bo'ldi,\n" \
@@ -299,19 +300,18 @@ async def save_image_for_post(message: Message, state: FSMContext):
 
 @dp.message_handler(content_types=[ContentType.VIDEO], state=Post.video)
 async def save_video_for_post(message: Message, state: FSMContext):
-    video = message.video
-    link = await video_link(video=video)
+    video = message.video.file_id
+    # link = await video_link(video=video)
     await state.update_data(
         {
-            'video': link
+            'video': video
         }
     )
     data = await state.get_data()
     msg = data.get('message')
-    text = f"{link}\n" \
-           f"{msg}"
-
-    await message.answer(text=text)
+    text = msg
+    await message.answer_video(video=video, caption=text)
+    # await message.answer(text=text)
 
     if str(message.from_user.id) in ADMINS:
         text = "Sizning Postingiz yuqoridagidek bo'ldi,\n" \

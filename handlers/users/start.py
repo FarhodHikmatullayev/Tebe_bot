@@ -28,7 +28,8 @@ async def get_contact(message: Message):
                              f"Sizning {contact.phone_number} raqamingizni qabul qildik.",
                              reply_markup=ReplyKeyboardRemove())
         markup = await categories_keyboard(user_id=message.from_user.id)
-        await message.answer(text="Endi quyidagi bo'limlardan birini tanlang", reply_markup=markup)
+        await message.answer(text="Endi quyidagi bo'limlardan birini tanlang")
+        await message.answer(text=txt, reply_markup=markup)
 
     except asyncpg.exceptions.UniqueViolationError:
         text = "Siz allaqachon ro'yxatdan o'tgan ekansiz\n" \
@@ -41,10 +42,28 @@ async def get_contact(message: Message):
 @dp.message_handler(CommandStart(), state='*')
 async def bot_start(message: types.Message, state: FSMContext):
     print('user_telegram_id', message.from_user.id)
+    users = await db.select_users(telegram_id=message.from_user.id)
+    if users:
+        text = f"Salom, {message.from_user.full_name}!\n"
+        text += "Botimizga xush kelibsiz\n"
+        text += "Quyidagi bo'limlardan birini tanlang"
+        categories = await db.select_all_categories()
 
-    text = f"Salom, {message.from_user.full_name}!\n"
-    text += "Botimizga xush kelibsiz\n" \
-            "Botdan ro'yxatdan o'tish uchun kontaktingizni yuboring"
+        txt = ""
+        tr = 0
 
-    await message.answer(text, reply_markup=keyboard)
-    await state.finish()
+        for category in categories:
+            tr += 1
+            txt += f"{tr}. {category['name']}\n"
+
+        await message.answer(text=text)
+        markup = await categories_keyboard(user_id=message.from_user.id)
+        await message.answer(text=txt, reply_markup=markup)
+
+    else:
+        text = f"Salom, {message.from_user.full_name}!\n"
+        text += "Botimizga xush kelibsiz\n" \
+                "Botdan ro'yxatdan o'tish uchun kontaktingizni yuboring"
+
+        await message.answer(text, reply_markup=keyboard)
+        await state.finish()

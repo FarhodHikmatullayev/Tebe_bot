@@ -13,9 +13,14 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
     category_id = int(callback_data.get('id'))
 
     if for_who == 'employee':
-        text = "Xodimlarning murojaatlari ro'yxati"
-        await call.message.edit_text(text=text)
+
         posts = await db.select_posts(category_id=category_id)
+        if posts:
+            text = "Xodimlarning murojaatlari ro'yxati"
+        else:
+            text = "Hali murojaatlar mavjud emas"
+        await call.message.edit_text(text=text)
+
         tr = 0
 
         for post in posts:
@@ -34,16 +39,17 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
             text += f"   telefon raqam: {phone} \n"
 
             message = post['text']
-            photo_url = post['image']
-            video_url = post['video']
+            photo_id = post['image']
+            video_id = post['video']
             if message:
-                text += f"{message}\n"
-            if photo_url:
-                text += f"{photo_url}\n"
-            if video_url:
-                text += f"{video_url}"
+                text += f"Post matni: {message}\n"
+            if photo_id:
+                await call.message.answer_photo(photo=photo_id, caption=text)
+            if video_id:
+                await call.message.answer_video(video=video_id, caption=text)
 
-            await call.message.answer(text=text, reply_markup=back_menu_keyboard)
+        await call.message.answer(text="Asosiy menyuga qaytish uchun quyidagi tugmani bosing",
+                                  reply_markup=back_menu_keyboard)
 
     elif for_who == "employer":
         markup = await add_or_see_posts_keyboard(category_id=category_id, for_who=for_who)
@@ -58,9 +64,13 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
     category_id = int(callback_data.get('id'))
 
     if for_who == 'employer':
-        text = "Postlar ro'yxati"
-        await call.message.edit_text(text=text)
+
         posts = await db.select_posts(category_id=category_id)
+        if posts:
+            text = "Postlar ro'yxati"
+        else:
+            text = "Hali postlar mavjud emas"
+        await call.message.edit_text(text=text)
         tr = 0
 
         for post in posts:
@@ -74,20 +84,21 @@ async def open_categories(call: CallbackQuery, callback_data: dict):
             username = users[0]['username']
             phone = users[0]['phone']
             message = post['text']
-            photo_url = post['image']
-            video_url = post['video']
+            photo_id = post['image']
+            video_id = post['video']
             text += "Post egasi ma'lumotlari: \n"
             text += f"   username: {username} \n"
             text += f"   full_name: {full_name} \n"
             text += f"   telefon raqam: {phone} \n"
             if message:
                 text += f"Post matni: {message}\n"
-            if photo_url:
-                text += f"Post rasmi: {photo_url}\n"
-            if video_url:
-                text += f"Post videosi: {video_url}"
+            if photo_id:
+                await call.message.answer_photo(photo=photo_id, caption=text)
+            if video_id:
+                await call.message.answer_video(video=video_id, caption=text)
 
-            await call.message.answer(text=text, reply_markup=back_menu_keyboard)
+        await call.message.answer(text="Asosiy menyuga qaytish uchun quyidagi tugmani bosing",
+                                  reply_markup=back_menu_keyboard)
         if tr == 0:
             text = "Hali post mavjud emas"
             await call.message.answer(text=text, reply_markup=back_menu_keyboard)

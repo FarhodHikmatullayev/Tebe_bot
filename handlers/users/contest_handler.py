@@ -156,8 +156,9 @@ async def start_test(call: CallbackQuery, callback_data: dict):
         await asyncio.sleep(2)  # this function will wait 2 seconds
 
         markup = await send_answers_keyboard(test_id=test_id, time=current_time.strftime('%Y-%m-%d %H_%M_%S'))
+        await call.message.answer_photo(photo=photo)
         await call.message.answer(
-            text=f"{photo}",
+            text="Javobni yuborish uchun quyidagi tugmani bosing",
             reply_markup=markup
         )
 

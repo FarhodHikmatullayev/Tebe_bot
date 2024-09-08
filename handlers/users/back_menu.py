@@ -14,7 +14,11 @@ async def back_to_menu(message: types.Message, state: FSMContext):
         tr += 1
         txt += f"{tr}. {category['name']}\n"
     markup = await categories_keyboard(user_id=message.from_user.id)
-    text = "Quyidagi bo'limlardan birini tanlang"
-    await message.answer(text)
-    await message.answer(text=txt, reply_markup=markup)
+
+    if tr > 0:
+        text = "Quyidagi bo'limlardan birini tanlang"
+        await message.answer(text)
+        await message.answer(text=txt, reply_markup=markup)
+    else:
+        await message.answer(text="Hali bot bo'sh, unda hech qanday ma'lumot mavjud emas")
     await state.finish()
